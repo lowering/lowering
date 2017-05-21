@@ -1,57 +1,37 @@
 package io.github.lowering.domain;
 
-import io.github.lowering.common.domain.Tree;
+import io.github.lowering.common.domain.Id;
 
-import javax.persistence.*;
-import java.util.Collections;
-import java.util.Set;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
-/**
- * Created by Administrator on 2017/5/19.
- */
 @Entity
-@Table(name = "lowering_sys_role")
-public class Role extends Tree<Role> {
+@Table(name="lowering_sys_site")
+public class Site extends Id {
+	
+	private static final long serialVersionUID = 5536914927051130729L;
 	private String name;
 	@Column(unique=true)
 	private String constant;
 	private String description;
-
-	@OneToMany(mappedBy="role")
-	private Set<RoleResource> roleAuthorities = Collections.emptySet();
-
-	@ManyToMany(mappedBy="roles")
-	private Set<User> users = Collections.emptySet();
-
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	public Set<RoleResource> getRoleAuthorities() {
-		return roleAuthorities;
-	}
-	public void setRoleAuthorities(Set<RoleResource> roleAuthorities) {
-		this.roleAuthorities = roleAuthorities;
-	}
-	public Set<User> getUsers() {
-		return users;
-	}
-	public void setUsers(Set<User> users) {
-		this.users = users;
-	}
 	public String getConstant() {
 		return constant;
 	}
 	public void setConstant(String constant) {
 		this.constant = constant;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	@Override
 	public int hashCode() {
@@ -70,7 +50,7 @@ public class Role extends Tree<Role> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Role other = (Role) obj;
+		Site other = (Site) obj;
 		if (constant == null) {
 			if (other.constant != null)
 				return false;
@@ -88,4 +68,5 @@ public class Role extends Tree<Role> {
 			return false;
 		return true;
 	}
+
 }
