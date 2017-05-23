@@ -1,7 +1,6 @@
 package io.github.lowering.domain;
 
 import io.github.lowering.common.domain.Tree;
-
 import javax.persistence.*;
 import java.util.Collections;
 import java.util.Set;
@@ -19,7 +18,6 @@ public class Role extends Tree<Role> {
 
 	@OneToMany(mappedBy="role")
 	private Set<RoleResource> roleAuthorities = Collections.emptySet();
-
 	@ManyToMany(mappedBy="roles")
 	private Set<User> users = Collections.emptySet();
 

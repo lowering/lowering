@@ -16,7 +16,6 @@ public abstract class Tree<T extends  Tree<T>> extends Id {
     @ManyToOne
     @JoinColumn(name = "parent")
     private T parent;
-
     @OneToMany(mappedBy = "parent")
     private Set<T> children = new HashSet<>(0);
 

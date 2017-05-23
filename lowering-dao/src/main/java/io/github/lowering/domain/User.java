@@ -2,7 +2,6 @@ package io.github.lowering.domain;
 
 
 import io.github.lowering.common.domain.Id;
-
 import javax.persistence.*;
 import java.util.Collections;
 import java.util.Date;

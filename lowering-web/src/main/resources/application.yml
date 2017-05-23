@@ -15,5 +15,11 @@ spring:
         strategy: org.hibernate.cfg.ImprovedNamingStrategy
     open-in-view: true
     show-sql: true
+  jackson:
+    mapper: true
+security:
+  filter-order: 6
+
+
 
 

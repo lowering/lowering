@@ -3,6 +3,7 @@ package io.github.lowering.security.service;
 import io.github.lowering.domain.User;
 import io.github.lowering.repository.UserRepository;
 import io.github.lowering.security.doamin.Principal;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -30,7 +31,6 @@ public class LoweringUserDetailsService implements UserDetailsService {
         if (user==null){
             throw new UsernameNotFoundException(String.format("%s不存在!",username));
         }
-
         return new Principal(user);
     }
 }

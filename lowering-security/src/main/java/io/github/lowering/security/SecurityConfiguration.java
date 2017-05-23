@@ -1,5 +1,6 @@
 package io.github.lowering.security;
 
+import io.github.lowering.security.handler.AuthenticationHandler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.method.configuration.Globa
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,6 +50,8 @@ public class SecurityConfiguration {
 
         @Autowired
         private UserDetailsService userDetailsService;
+        @Autowired
+        private AuthenticationHandler authenticationHandler;
 
         @PostConstruct
         public void init(){
@@ -56,7 +60,6 @@ public class SecurityConfiguration {
 
         @Override
         protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            super.configure(auth);
             auth.userDetailsService(this.userDetailsService).passwordEncoder(passwordEncoder());
         }
 
@@ -71,61 +74,31 @@ public class SecurityConfiguration {
             return super.authenticationManagerBean();
         }
 
-        //@Bean
-        public LoweringCaptchaAuthorizationFilter loweringCaptchaAuthorizationFilter() throws Exception{
-            LoweringCaptchaAuthorizationFilter loweringCaptchaAuthorizationFilter = new LoweringCaptchaAuthorizationFilter();
-            loweringCaptchaAuthorizationFilter.setAuthenticationManager(authenticationManagerBean());
-            return loweringCaptchaAuthorizationFilter;
-        }
-
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http.csrf()
                     .disable()
                     .exceptionHandling()
-                    .accessDeniedHandler((request,response,exception)->{
-                        request.setAttribute("javax.servlet.error.exception", exception);
-                        request.setAttribute("javax.servlet.error.status_code", 403);
-                        request.setAttribute("javax.servlet.error.message", exception.getMessage());
-                        request.getRequestDispatcher("/error").forward(request, response);
-                    })
-                    .authenticationEntryPoint((request,response,exception)->{
-                        request.setAttribute("javax.servlet.error.exception", exception);
-                        request.setAttribute("javax.servlet.error.status_code", 401);
-                        request.setAttribute("javax.servlet.error.message", exception.getMessage());
-                        request.getRequestDispatcher("/error").forward(request, response);
-                    });
+                    .accessDeniedHandler(authenticationHandler)
+                    .authenticationEntryPoint(authenticationHandler);
 
             http.authorizeRequests()
-                    .antMatchers("/static/**","/error","/failure").permitAll()
+                    .antMatchers("/static/**","/error","/swagger-ui.html","/webjars/**","/swagger-resources/**","/v2/**").permitAll()
                     .anyRequest()
                     .authenticated();
 
             http.formLogin()
                     .loginPage("/authorize/login")
                     .loginProcessingUrl("/authorize/login")
-                    .failureForwardUrl("/error")
-                    .successForwardUrl("/authorize/me")
-//                    .successHandler(((request, response, authentication) -> {
-//                        Object principal = authentication.getPrincipal();
-//                        if (principal instanceof Principal){
-//                            response.getWriter().write("id");
-//                        }
-//                    }))
-//                    .failureHandler((request, response, exception) -> {
-//                        request.setAttribute("javax.servlet.error.exception", exception);
-//                        request.setAttribute("javax.servlet.error.status_code", 500);
-//                        request.setAttribute("javax.servlet.error.message", exception.getMessage());
-//                        request.getRequestDispatcher("/error").forward(request, response);
-//                    })
+                    .successHandler(authenticationHandler)
+                    .failureHandler(authenticationHandler)
                     .permitAll();
 
             http.logout()
                     .logoutUrl("/authorize/logout")
-                    .logoutSuccessUrl("/authorize/login")
+                    .logoutSuccessHandler(authenticationHandler)
                     .invalidateHttpSession(true);
 
-            //http.addFilterAt(loweringCaptchaAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
         }
     }
 
